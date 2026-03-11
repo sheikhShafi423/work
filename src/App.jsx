@@ -1,22 +1,38 @@
-import { useState } from 'react'
-import Home from './Component/Auth/Home'
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import {auth} from "./Component/Auth/firebase";
+
+import Navbar from "./Component/Auth/Navbar";
+import Signup from "./Component/Auth/Signup";
+import Login from "./Component/Auth/Login";
+import UserProfile from "./Component/Auth/UserProfile";
+import Home from "./Component/Auth/Home";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState(null);
+
+  // listen to firebase login state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <>
-      <div>
-        <Home />
-      </div>
-      <div className="flex items-center justify-center h-screen">
-        <h1 className="text-3xl font-bold text-blue-500">
-          Tailwind Working
-        </h1>
-      </div>
-      
-    </>
-  )
+    <BrowserRouter>
+      <Navbar user={user} />
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<UserProfile />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
